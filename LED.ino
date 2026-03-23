@@ -1,31 +1,40 @@
+#include "Constants.h"
+#include "LedController.h"
+#include "RemoteControl.h"
+
 #include <IRremoteESP8266.h>
 #include <IRrecv.h>
 #include <IRutils.h>
 
-#include "Constants.h"
-#include "LEDController.h"
-#include "RemoteControl.h"
+LEDController led;
+RemoteControl remote(led);
 
-IRrecv irrecv(recvPin); // Create a class object used to receive class
-decode_results results; // Create a decoding results class object
+IRrecv irrecv(recvPin);
+decode_results results;
 
 void setup() {
-  Serial.begin(9600);
+  // put your setup code here, to run once:
+  Serial.begin(115200);
 
-  initIR(irrecv);
-  initLEDs();
+  delay(2000);
 
   Serial.print("IR receiver running on pin ");
   Serial.println(recvPin);
+
+  led.begin();
+  irrecv.enableIRIn();
 }
 
 void loop() {
-  setColor();
-
+  // put your main code here, to run repeatedly:
+  led.update();
+  
   if (irrecv.decode(&results)) {
-    checkButtons(SIZE, results);
+    Serial.println(results.value);
+    remote.handle(results);
     irrecv.resume();
   }
 
   delay(5);
+
 }

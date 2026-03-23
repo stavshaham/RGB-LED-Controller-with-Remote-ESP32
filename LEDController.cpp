@@ -1,23 +1,57 @@
-#include <Arduino.h>
-#include <math.h>
 #include "LEDController.h"
 #include "Constants.h"
 
-static float rSmooth = 0;
-static float gSmooth = 0;
-static float bSmooth = 0;
+#include <Arduino.h>
+#include <math.h>
 
-static int gammaCorrect(float value) {
+LEDController::LEDController() : 
+  rPin(RED_LED), gPin(GREEN_LED), bPin(BLUE_LED), 
+  rSmooth(0), gSmooth(0), bSmooth(0) {
+    int i = 0;
+    for (i = 0; i < SIZE; i++) {
+      rawValues[i] = 0;
+    }
+
+
+}
+
+void LEDController::begin() {
+  ledcAttach(rPin, 5000, 8);
+  ledcAttach(gPin, 5000, 8);
+  ledcAttach(bPin, 5000, 8);
+}
+
+void LEDController::increase(int step) {
+  rawValues[currentChannel] = min(rawValues[currentChannel] + step, MAX_VALUE);
+}
+
+void LEDController::decrease(int step) {
+  rawValues[currentChannel] = max(rawValues[currentChannel] - step, MIN_VALUE);
+}
+
+void LEDController::nextChannel() {
+  currentChannel = (currentChannel + 1) % 3;
+  Serial.println(currentChannel);
+}
+
+void LEDController::previousChannel() {
+  currentChannel = (currentChannel + 2) % 3;
+  Serial.println(currentChannel);
+}
+
+void LEDController::powerOff() {
+  int i = 0;
+  for (i = 0; i < SIZE; i++) {
+    rawValues[i] = 0;
+  }
+}
+
+int LEDController::gammaCorrect(float value) {
   return (int)(pow(value / 255.0, GAMMA) * 255.0 + 0.5);
 }
 
-void initLEDs() {
-  ledcAttach(RED_LED, 5000, 8);
-  ledcAttach(GREEN_LED, 5000, 8);
-  ledcAttach(BLUE_LED, 5000, 8);
-}
+void LEDController::update() {
 
-void setColor() {
   float r = map(rawValues[0], 0, MAX_VALUE, 0, 255);
   float g = map(rawValues[1], 0, MAX_VALUE, 0, 255);
   float b = map(rawValues[2], 0, MAX_VALUE, 0, 255);
@@ -26,7 +60,7 @@ void setColor() {
   gSmooth += (g - gSmooth) * SMOOTHING;
   bSmooth += (b - bSmooth) * SMOOTHING;
 
-  ledcWrite(RED_LED,   gammaCorrect(rSmooth));
-  ledcWrite(GREEN_LED, gammaCorrect(gSmooth));
-  ledcWrite(BLUE_LED,  gammaCorrect(bSmooth));
+  ledcWrite(rPin, gammaCorrect(rSmooth));
+  ledcWrite(gPin, gammaCorrect(gSmooth));
+  ledcWrite(bPin, gammaCorrect(bSmooth));
 }

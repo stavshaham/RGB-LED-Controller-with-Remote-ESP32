@@ -10,7 +10,7 @@ constexpr int SIZE = 3;
 constexpr unsigned int RED_LED = 21;
 constexpr unsigned int GREEN_LED = 22;
 constexpr unsigned int BLUE_LED = 23;
-constexpr uint16_t recvPin = 15;
+constexpr uint16_t recvPin = 27;
 
 // Remote values
 constexpr unsigned int POWER_BUTTON = 0xFFA25D;
@@ -32,7 +32,7 @@ constexpr float GAMMA = 2.2;
 constexpr float RATIO = (4095/256);
 
 // Shared state
-extern int currentState;
+extern int currentChannel;
 extern int rawValues[SIZE];
 
 #endif
