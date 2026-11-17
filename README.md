@@ -108,7 +108,7 @@ This ensures smooth, responsive behavior without blocking the main loop.
 
 ## 📜 License
 
-MIT License (or choose your preferred license)
+MIT License
 
 ---
 
